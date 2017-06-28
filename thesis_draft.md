@@ -83,6 +83,14 @@ This use case is similar to use case 1 and we could simply use `parallel` after 
    
 ### Data set discussion: ###   
    
+The Data set I used in this study comes from http://mawi.wide.ad.jp/mawi/   
+
+##### WIDE MAWI WorkingGroup #####   
+> The MAWI (Measurement and Analysis on the WIDE Internet) Working Group is a working group that has carried out network traffic measurement, analysis, evaluation, and verification from the beginning of the WIDE Project. The WIDE Project carries out research activities through the use of the actual network, but simply operating the network alone does not qualify as research. Our goals are to make use of the knowledge gained through network operations, and to evaluate research results under the actual traffic. In other words, we evaluate whether the network behaves as it was designed, and learn from unexpected behaviors. Furthermore, if there is a problem, we seek out the cause and devise measures to solve the problem. However, it is very difficult to perform measurements at the site of operation, especially when in a trouble. Therefore, the MAWI Working Group was created to specialize in measurement and evaluation. Additionally, because some form of measurement is often required in any research, the MAWI WG plays a role to share measurement and analysis information across all working groups.   
+   
+The packet trace should be universal and representative. At the same time, it should also cover different protocols. MAWI captured all the traces from WIDE backbone. As we check the protocol breakdown of the packet trace, we can see that the trace includes packets of almost all kinds of common protocols. The IPv4 packets make up a large proportion of the whole trace and there are more than 50% packets of TCP protocol and some UDP/ICMP packets inside as well. The file size is 4344.48 MB and the number of packets is more than 64 million which is considerable enough to be taken as the data set. As for the privacy, the group also scrambles the addresses in order to provide anonymity.   
+Therefore I choosed the packet trace from MAWI Working Group.   
+   
 ### `ipsumdump` & `tcpdump` comparison: ###   
    
 Firstly I tried to use simple 'tcpdump' to aggregate the source IP addresses for the second use case. As we all know that 'tcpdump' is a conventional tool of printing out a description of the contents of packets on a network interface as well as reading from a trace file. Afterwards, I found a new linux tool called 'ipsumdump' which is specially used to aggregate IP addresses. Therefore, I wrote a script to compare their performance in order to know which one is better.   
