@@ -1,4 +1,4 @@
-###Use Case 1: Detection of Aggressive Signups###   
+### Use Case 1: Detection of Aggressive Signups ###   
    
 Web-account abuse attack influences the network security significantly. Back to 2007, millions of botnet email accounts were created to send spam emails in a short period from majof Web email service providers. Since there is a limitation of the number of sending emails each day set by email service providers like Hotmail, a spammer will try to sign up accounts as many as possible. Therefore the detection of aggresive signups becomes the most fundamental method.   
    
@@ -7,32 +7,32 @@ Based on the premise that normally the signup actions can not happen frequently 
 Pseudo code:   
    
 ```
-> FILE_NAME
-> SPLIT_TIME # time window in which same source IP addresses should be aggregated
-> START_TIME # record the start time of program
-> 
-> ipaggcreate -s $FILE_NAME --split-time=${SPLIT_TIME}s -o /tmp/res-${SPLIT_TIME}sec-%d
-> # -s: aggregate the source IP addresses
-> # --split-time: start a new output file every time period
-> # -o: define the format of output file
-> 
-> FILE_NUM # Calculate the number of temporary ouput files which will be used for the loop
-> 
-> # Read the temporary files and sort
-> for i in $( seq 1 $FILE_NUM )
-> do
-> 	# Remove the first few lines of temporary output files, sort by the number of IP addresses
-> 	# Remove the temporary output files
-> done
-> 
-> ELPASED_TIME # Use $START_TIME to calculate the elapsed time
+FILE_NAME
+SPLIT_TIME # time window in which same source IP addresses should be aggregated
+START_TIME # record the start time of program
+
+ipaggcreate -s $FILE_NAME --split-time=${SPLIT_TIME}s -o /tmp/res-${SPLIT_TIME}sec-%d
+# -s: aggregate the source IP addresses
+# --split-time: start a new output file every time period
+# -o: define the format of output file
+
+FILE_NUM # Calculate the number of temporary ouput files which will be used for the loop
+
+# Read the temporary files and sort
+for i in $( seq 1 $FILE_NUM )
+do
+	# Remove the first few lines of temporary output files, sort by the number of IP addresses
+	# Remove the temporary output files
+done
+
+ELPASED_TIME # Use $START_TIME to calculate the elapsed time
 ```   
    
 As for the parallelization, since `ipaggcreate` can split the trace file based on the split time users set, we can simply add `parallel --pipe` to the `sort` in the loop in pseudo code. And GNU Parallel can utilize the CPU automatically.   
 
 ---   
 
-###Use Case 2: Blackholing at IXPs###   
+### Use Case 2: Blackholing at IXPs ###   
    
 Distributed Denial of Service (DDoS) attack is still a serious threat to the Internet. And the core peering links which the DDoS attack will congest at Internet Exchange Points (IXPs) are also influenced. At present, the main DDoS mitigation method is to blackhole traffic to a specific IP prefix at upstream providers. When an AS is attacked, the victim AS will announce the attacked destination IP prefix upstream network via BGP. And the traffic towards these IP prefixes will be dropped.   
    
@@ -43,19 +43,19 @@ So the attacked IP prefix can be obtained by aggregating the destination address
 Pseudo code:   
    
 ```
-> FILE_NAME
-> START_TIME # record the start time of program
->
-> ipsumdump -r $FILE_NAME -d|\ # Read file and output destination IP addresses
-> grep | cut | sort | uniq | sort # Text formatting; aggregation and sort by destination IP addresses
->
-> ELPASED_TIME # Use $START_TIME to calculate the elapsed time
+FILE_NAME
+START_TIME # record the start time of program
+
+ipsumdump -r $FILE_NAME -d|\ # Read file and output destination IP addresses
+grep | cut | sort | uniq | sort # Text formatting; aggregation and sort by destination IP addresses
+
+ELPASED_TIME # Use $START_TIME to calculate the elapsed time
 ```   
 The most troublesome problem for parallelization in this use case is how to split the file. Even though GNU Parallel makes it possible to split the file by the number of lines that users set, a feasible way of recombining the results of split files is still hard to find out. An specific IP prefix has different counts in different output files. My guess is using `awk` to check the IP addresses line by line and then add the counts up. But in this way the time complexity will not be satisfied.   
    
 ---   
    
-###Use Case 3: Online Botnet Detection###   
+### Use Case 3: Online Botnet Detection ###   
    
 The increasing development speed of botnet makes it a severe threat to Internet security. The botmaster disseminates bot programs to control tremendous amount of hosts and communicates with these bot hosts through Command and Control (C&C) channel to issue orders. And these hosts compose the botnet. The botmaster can take different types of attacks, e.g., DDoS attack, spamming email attack, information theft, etc.   
    
@@ -70,13 +70,13 @@ Job1 calculates the occurrence number of flows. Only 3 attributes should be take
 Pseudo code:   
    
 ```
-> FILE_NAME
-> tcpdump | sort | uniq | sort
-> 	# Check the packet type, e.g., SYN, SYN ACK, FIN ... to recognize a TCP flow and record 
-> 	# both source IP address and destination IP address as well as the time stamp
-> 	# Split the file based on a time window and aggregate the flows
-> 	# Check the difference number of occurrence of each flow and print the flows with difference number 
-> 	# equals to 0
+FILE_NAME
+tcpdump | sort | uniq | sort
+	# Check the packet type, e.g., SYN, SYN ACK, FIN ... to recognize a TCP flow and record 
+	# both source IP address and destination IP address as well as the time stamp
+	# Split the file based on a time window and aggregate the flows
+	# Check the difference number of occurrence of each flow and print the flows with difference number 
+	# equals to 0
 ```   
 
 This use case is similar to use case 1 and we could simply use `parallel` after the file split to implement parallelizaion and utilize the CPU.   
