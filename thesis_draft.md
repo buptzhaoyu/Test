@@ -94,7 +94,7 @@ The setup of experiment is quite simple:
 - System: Ubuntu 16.04 LTS   
    
 Script:   
-```
+```shell
 #!/bin/bash
 
 SUM_TIME=0
@@ -127,4 +127,4 @@ echo "'ipsumdump' is $(echo "scale=4; (${AVERAGE_TIME_TCPDUMP}-${AVERAGE_TIME_IP
 ```   
 
 The command line window looks like:   
-The result indicates that 'ipsumdump' is 96.6% faster than 'tcpdump' in efficiency. So I chose 'ipsumdump' as the tool of aggregating the IP addresses.   
+The result indicates that `ipsumdump` is 96.6% faster than `tcpdump` in efficiency. So I chose 'ipsumdump' as the tool of aggregating the IP addresses.   
