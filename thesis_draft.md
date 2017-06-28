@@ -81,9 +81,10 @@ tcpdump | sort | uniq | sort
 
 This use case is similar to use case 1 and we could simply use `parallel` after the file split to implement parallelizaion and utilize the CPU.   
    
-Data set discussion:   
+### Data set discussion: ###   
    
-Ipsumdump & tcpdump comparison:   
+### `ipsumdump` & `tcpdump` comparison: ###   
+   
 Firstly I tried to use simple 'tcpdump' to aggregate the source IP addresses for the second use case. As we all know that 'tcpdump' is a conventional tool of printing out a description of the contents of packets on a network interface as well as reading from a trace file. Afterwards, I found a new linux tool called 'ipsumdump' which is specially used to aggregate IP addresses. Therefore, I wrote a script to compare their performance in order to know which one is better.   
 The setup of experiment is quite simple:   
 - Task: obtain the source IP addresses from the same trace file   
