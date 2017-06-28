@@ -83,7 +83,7 @@ This use case is similar to use case 1 and we could simply use `parallel` after 
    
 ### Data set discussion: ###   
    
-The Data set I used in this study comes from http://mawi.wide.ad.jp/mawi/   
+The data set I used in this study comes from http://mawi.wide.ad.jp/mawi/   
 
 ##### WIDE MAWI WorkingGroup #####   
 > The MAWI (Measurement and Analysis on the WIDE Internet) Working Group is a working group that has carried out network traffic measurement, analysis, evaluation, and verification from the beginning of the WIDE Project. The WIDE Project carries out research activities through the use of the actual network, but simply operating the network alone does not qualify as research. Our goals are to make use of the knowledge gained through network operations, and to evaluate research results under the actual traffic. In other words, we evaluate whether the network behaves as it was designed, and learn from unexpected behaviors. Furthermore, if there is a problem, we seek out the cause and devise measures to solve the problem. However, it is very difficult to perform measurements at the site of operation, especially when in a trouble. Therefore, the MAWI Working Group was created to specialize in measurement and evaluation. Additionally, because some form of measurement is often required in any research, the MAWI WG plays a role to share measurement and analysis information across all working groups.   
