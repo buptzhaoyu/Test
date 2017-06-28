@@ -84,3 +84,47 @@ This use case is similar to use case 1 and we could simply use `parallel` after 
 Data set discussion:   
    
 Ipsumdump & tcpdump comparison:   
+Firstly I tried to use simple 'tcpdump' to aggregate the source IP addresses for the second use case. As we all know that 'tcpdump' is a conventional tool of printing out a description of the contents of packets on a network interface as well as reading from a trace file. Afterwards, I found a new linux tool called 'ipsumdump' which is specially used to aggregate IP addresses. Therefore, I wrote a script to compare their performance in order to know which one is better.   
+The setup of experiment is quite simple:   
+- Task: obtain the source IP addresses from the same trace file   
+- File Size: 740 MB   
+- Processor: Intel Core i7-4850HQ CPU @ 2.3 GHz
+- Core Number: 1   
+- Memory: 2 GB   
+- System: Ubuntu 16.04 LTS   
+   
+Script:   
+```
+#!/bin/bash
+
+SUM_TIME=0
+REP_TIME=5
+while [ ${REP_TIME} -gt 0  ]
+do
+    START_TIME=$(date +%s.%N)
+    tcpdump -nnr ${1} | cut -d ' ' -f3 > /dev/null
+    ELAPSED_TIME=$(echo "$(date +%s.%N)-${START_TIME}" | bc)
+    SUM_TIME=$(echo "${SUM_TIME}+${ELAPSED_TIME}" | bc)
+    REP_TIME=$((${REP_TIME}-1))
+done
+AVERAGE_TIME_TCPDUMP=$(echo "scale=5; ${SUM_TIME}/5" | bc)
+echo "Average runtime of 'tcpdump' is ${AVERAGE_TIME_TCPDUMP} seconds." >> output
+
+SUM_TIME=0
+REP_TIME=5
+while [ ${REP_TIME} -gt 0  ]
+do
+    START_TIME=$(date +%s.%N)
+    ipsumdump -r ${1} -s > /dev/null
+    ELAPSED_TIME=$(echo "$(date +%s.%N)-${START_TIME}" | bc)
+    SUM_TIME=$(echo "${SUM_TIME}+${ELAPSED_TIME}" | bc)
+    REP_TIME=$((${REP_TIME}-1))
+done
+AVERAGE_TIME_IPSUMDUMP=$(echo "scale=5; ${SUM_TIME}/5" | bc)
+echo "Average runtime of 'ipsumdump' is ${AVERAGE_TIME_IPSUMDUMP} seconds." >> output
+
+echo "'ipsumdump' is $(echo "scale=4; (${AVERAGE_TIME_TCPDUMP}-${AVERAGE_TIME_IPSUMDUMP})/${AVERAGE_TIME_TCPDUMP}*100" | bc)% faster than 'tcpdump'. " >> output
+```   
+
+The command line window looks like:   
+The result indicates that 'ipsumdump' is 96.6% faster than 'tcpdump' in efficiency. So I chose 'ipsumdump' as the tool of aggregating the IP addresses.   
