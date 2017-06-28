@@ -126,5 +126,5 @@ echo "Average runtime of 'ipsumdump' is ${AVERAGE_TIME_IPSUMDUMP} seconds." >> o
 echo "'ipsumdump' is $(echo "scale=4; (${AVERAGE_TIME_TCPDUMP}-${AVERAGE_TIME_IPSUMDUMP})/${AVERAGE_TIME_TCPDUMP}*100" | bc)% faster than 'tcpdump'. " >> output
 ```   
 
-The command line window looks like:   
+The command line window looks like: (figure)   
 The result indicates that `ipsumdump` is 96.6% faster than `tcpdump` in efficiency. So I chose 'ipsumdump' as the tool of aggregating the IP addresses.   
