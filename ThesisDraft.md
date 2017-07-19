@@ -79,8 +79,67 @@ tcpdump | sort | uniq | sort
 	# equals to 0
 ```   
 
-This use case is similar to use case 1 and we could simply use `parallel` after the file split to implement parallelizaion and utilize the CPU.   
+This use case is similar to use case 1 and we could simply use `parallel` after the file split to implement parallelization and utilize the CPU.   
    
+### Use Case 4: Congested Link Detection ###   
+   
+Tracking Packets' Paths and Latency via INT(In-band Network Telemetry)   
+   
+INT is a framework designed to allow the collection and reporting of network state, by the data plane, without requiring intervention or work by the control plane. An INT switch will add switch metadata to a packet whenever it passes through. At the end of the INT switch in the whole path, the switch will extract the metadata and pass the orginal packet to the end-host. The remote monitoring engine supervises the source INT switches which are at both the beginning and end of the transmission path. Packets contain header fields that are interpreted as "telemetry instructions" by network devices. These instructions tell INT-capable devices what to collect; collected data is written into the packets themselves. Examples of per-packet metadata one can collect via INT include switch IDs, input/outpu port IDs, hop latency, queue occupancy, arrival/departure timestamp, etc.   
+
+
+Path and Latency Tracking(PLT) is just an application of INT. And PLT is used to collect the physical path and hop latencies for every packet; INT Sinks export only meaningful records to a remote monitoring system as mirrored packets.   
+   
+PLT can make real-time anomaly detection and alert generation including,   
+- Congested connections
+- Congestion at switches
+- Unused (dead) links and switches
+- Imbalance of link utilization (ECMP and LAG)
+- Loops
+   
+So with PLT, we can identify connections affected by planned maintenance or un-planned events and detect hop-latency increases and identify the victims.   
+For example, if we plan to check all the hop latencies in the network we can collect the mirrored packets from the INT sinks and aggregate the latencies based on switch IDs.   
+   
+Pseudo code:   
+   
+Since we don't have INT capable devices which means we can't collect metadata and it's difficult to test this use case. So pseudo code is not written here, however, PLT monitoring engine contains Spark for streaming and batch data processing which means this use case is indeed practical.   
+
+### Use Case 5: The MINDS - Minnesota Instrusion Detection System ###   
+   
+Minnesota Intrusion Detection System (MINDS) uses a suite of data mining techniques to automatically detect attacks against computer networks and systems. There are two aspects which MINDS concentrate on so far. Firstly, MINDS can detect new and previously unknown types of intrusions, which often indicate emerging threats. It uses an anomaly detection algorithm that assigns a score to each connection based on its probability of being an intrusion. Secondly, MINDS also shows how association pattern analysis can be used to summarize and characterize anomalous network connections. Given the very high volume of connections obaserved per unit time, such characterization of novel attacks is essential in enabling a security analyst to understand emerging threats.   
+   
+Figure illustates the process of analyzing real network traffic data using the system. The analyst uses MINDS to analyze these 10-minute data files in a batch mode. The reason the system is running in a batch mode is not due to the time it takes to analyze these files, but it is convenient for the analyst to do so. Before data is fed into the anomaly detecion module, a data filtering step is performed by the analyst to remove network traffic that the analyst is not interested in analyzing.   
+   
+The first step in MINDS is extracting features that are used in the data mining analysis. Derived features include time-window and connection-windows based features. Let's take time-window based features as an example. They are constructed to capture connections with similar characteristics in the last T seconds. The table shows several time-window based features.   
+   
+> Count-dest: Number of flows to unique destination IP addresses inside the network in the last T seconds from the same source.   
+   
+Pseudo code:   
+   
+```shell
+# Split trace file based on time window set by user 
+editcap -i $SPLIT_TIME $FILE_NAME /tmp/split_minds.pcap -F libpcap
+
+# Process each piece
+for TEMPFILE in `ls /tmp/ | grep -P "^split_minds"`
+do
+# List both source and destination address
+	ipsumdump /tmp/$TEMPFILE -o /tmp/$TEMPFILE.res -sd 
+
+# Remove useless lines | sort by source address and destination address afterwards
+	sed '/^!/d;/^-/d' /tmp/$TEMPFILE.res | sort -n -k1,1 -k2,2 |\
+# Remove & count the duplicated lines and sort
+	uniq -c | sort -nr > $TEMPFILE.result
+
+# Cleanup
+	rm /tmp/$TEMPFILE
+	rm /tmp/$TEMPFILE.res
+done
+```
+   
+During the period of processing the trace file in this use case  we need to split trace file based on time window. Therefore, we can use `Parallel` to realize parallelization similar to Use Case 1.   
+   
+
 ### Data set discussion: ###   
    
 The data set I used in this study comes from http://mawi.wide.ad.jp/mawi/   
